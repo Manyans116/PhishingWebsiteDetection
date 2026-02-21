@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Phishing URL Detector</title>
+</head>
+<body style="text-align:center; margin-top:50px;">
+
+    <h1>Phishing URL Detection System</h1>
+
+    <form action="/predict" method="POST">
+        <input type="text" name="url" placeholder="Enter website URL" required style="width:300px; padding:8px;">
+        <br><br>
+        <button type="submit" style="padding:8px 20px;">Check</button>
+    </form>
+
+    <h2>{{ prediction_text }}</h2>
+
+</body>
+</html>

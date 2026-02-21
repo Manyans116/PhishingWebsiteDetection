@@ -50,7 +50,7 @@ def predict():
     probability = model.predict_proba(final_input)[0]
     confidence = round(np.max(probability) * 100, 2)
 
-    if prediction == 0:
+    if prediction == 00:
         result = "⚠️ Phishing Website"
     else:
         result = "✅ Safe Website"
@@ -64,5 +64,8 @@ def predict():
 # ----------------------------
 # RUN APP
 # ----------------------------
+import os
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)

@@ -4,3 +4,4 @@ gunicorn
 pickle-mixin
 joblib
 numpy
+python-whois

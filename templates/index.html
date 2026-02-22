@@ -1,19 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Phishing URL Detector</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishShield AI - URL Scanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0033 50%, #000428 100%);
+            min-height: 100vh;
+            font-family: 'Orbitron', monospace;
+            color: #00ff88;
+            overflow-x: hidden;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(0,255,136,0.1) 0%, transparent 70%);
+            animation: pulse 4s infinite;
+            z-index: -1;
+        }
+        @keyframes pulse { 0%,100%{opacity:0.3;} 50%{opacity:0.7;} }
+        
+        .container { max-width: 600px; margin: 0 auto; padding: 2rem; text-align: center; }
+        h1 {
+            font-size: 3rem; font-weight: 900; margin-bottom: 1rem;
+            background: linear-gradient(45deg, #00ff88, #00d4ff, #ff00ff); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow { from { text-shadow: 0 0 20px #00ff88; } to { text-shadow: 0 0 30px #00ff88, 0 0 40px #00ff88; } }
+        
+        .input-group { position: relative; margin: 3rem 0; }
+        input[type="url"] {
+            width: 100%; padding: 1.2rem 1rem 1.2rem 3rem; font-size: 1.2rem; font-family: monospace;
+            border: 2px solid #333; border-radius: 15px; background: rgba(0,0,0,0.8);
+            color: #00ff88; transition: all 0.3s; caret-color: #00ff88;
+        }
+        input:focus { border-color: #00ff88; box-shadow: 0 0 25px rgba(0,255,136,0.5); outline: none; }
+        .scan-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.5rem; color: #666; }
+        
+        button {
+            background: linear-gradient(45deg, #ff0080, #00ff88); border: none; padding: 1rem 3rem;
+            font-size: 1.2rem; font-weight: 700; border-radius: 50px; cursor: pointer;
+            color: #000; transition: all 0.3s; margin-top: 1rem; box-shadow: 0 10px 30px rgba(255,0,128,0.4);
+        }
+        button:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(255,0,128,0.6); }
+        
+        .result { margin-top: 3rem; min-height: 200px; }
+        .shield {
+            width: 200px; height: 200px; margin: 0 auto 1rem; position: relative;
+            background: conic-gradient(from 0deg, #ff0000 0deg 180deg, #00ff00 180deg 360deg);
+            border-radius: 50%; animation: rotate 3s linear infinite;
+        }
+        .shield::after {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            width: 120px; height: 120px; background: radial-gradient(circle, transparent 40%, #000 41%);
+            border-radius: 50%; border: 4px solid #00ff88;
+        }
+        @keyframes rotate { to { transform: rotate(360deg); } }
+        
+        .phishing { filter: hue-rotate(0deg) saturate(2); }
+        .safe { filter: hue-rotate(120deg) saturate(2); }
+        
+        .status {
+            font-size: 2.5rem; font-weight: 900; margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff4757, #ff3838); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .safe .status { background: linear-gradient(45deg, #2ed573, #1e90ff); }
+        
+        .confidence {
+            font-size: 1.5rem; color: #ccc; font-weight: 700;
+            text-shadow: 0 0 10px currentColor;
+        }
+        .glitch { animation: glitch 0.3s infinite; }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        
+        @media (max-width: 768px) { h1 { font-size: 2rem; } .shield { width: 150px; height: 150px; } }
+    </style>
 </head>
-<body style="text-align:center; margin-top:50px;">
-
-    <h1>Phishing URL Detection System</h1>
-
-    <form action="/predict" method="POST">
-        <input type="text" name="url" placeholder="Enter website URL" required style="width:300px; padding:8px;">
-        <br><br>
-        <button type="submit" style="padding:8px 20px;">Check</button>
-    </form>
-
-    <h2>{{ prediction_text }}</h2>
-
+<body>
+    <div class="container">
+        <h1><i class="fas fa-shield-alt"></i> PhishShield AI</h1>
+        <p style="font-size:1.1rem; margin-bottom:2rem; opacity:0.8;">Scan URLs with AI - Powered by Character TF-IDF + Logistic Regression</p>
+        
+        <form action="/predict" method="POST" class="input-group">
+            <i class="fas fa-search scan-icon"></i>
+            <input type="url" name="url" placeholder="https://example.com" required autocomplete="off">
+            <button type="submit"><i class="fas fa-bolt"></i> SCAN NOW</button>
+        </form>
+        
+        {% if prediction_text %}
+        <div class="result {{ 'safe' if 'Safe' in prediction_text else 'phishing' }}">
+            <div class="shield {{ 'safe' if 'Safe' in prediction_text else 'phishing' }}"></div>
+            <div class="status glitch">{{ prediction_text }}</div>
+            <div class="confidence">{{ confidence_text }}</div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        const input = document.querySelector('input');
+        input.addEventListener('input', function() {
+            this.parentNode.classList.add('glitch');
+            setTimeout(() => this.parentNode.classList.remove('glitch'), 300);
+        });
+    </script>
 </body>
 </html>

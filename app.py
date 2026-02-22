@@ -3,6 +3,10 @@ import pickle
 import numpy as np
 import re
 from scipy.sparse import hstack
+import urllib.parse
+from datetime import datetime
+import whois
+
 
 # ----------------------------
 # CREATE FLASK APP FIRST
